@@ -18,6 +18,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "torg.h"
 #include "config.h"
+#include "filemgm.h"
+
+#define CONFIG_FOLDER "/.config/torg"
 
 static void display_configs (Configs configs) {
     printf("\nYou've chosen the below configs:\n\n");
@@ -36,15 +39,13 @@ int main(int argc, char * const argv[]) {
  
     /* Create configuration folder */
     char config_path[MAX_PATH_LEN] = {'\0'};
-    snprintf(config_path, MAX_PATH_LEN -1, "%s/.config/cvrt", getenv("HOME"));
+    snprintf(config_path, MAX_PATH_LEN -1, "%s%s", getenv("HOME"),CONFIG_FOLDER);
     
-    /* Not ready yet
     if (create_dir (config_path) == -1) {
         fprintf(stderr, "[fun: %s - %s:%d] Error: unable to create config folder: (%s)\n", 
                 __func__, __FILE__, __LINE__, strerror(errno));
         return 1;
     }
-*/
     Configs *configs = (Configs *) malloc(sizeof(Configs));
 
     initialise_configs(configs);
