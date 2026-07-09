@@ -21,7 +21,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "filemgm.h"
 
 #define CONFIG_FOLDER "/.config/torg"
-
+                                                                         
 static void display_configs (Configs configs) {
     printf("\nYou've chosen the below configs:\n\n");
     if (configs.isfilter) {

@@ -55,4 +55,5 @@ dkms.conf
 
 Makefile.depend
 Session.vim
+torg.geany
 bin

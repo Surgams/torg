@@ -133,7 +133,7 @@ void convert_files_recursively (Configs configs) {
                     if ((strcmp(configs.copy_types, "*") == 0) || (strstr(configs.copy_types, point) != NULL)) {
 
                         /* Preparing source and destination files */
-                        char  src_tmp[MAX_PATH_LEN] = {}, dest_tmp[MAX_PATH_LEN] = {};
+                        char  src_tmp[MAX_PATH_LEN] = '\0', dest_tmp[MAX_PATH_LEN] = '\0';
 
                         snprintf(dest_tmp, sizeof(dest_tmp) - 1, "%s/%s", dest_path, dp->d_name);
                         snprintf(src_tmp, sizeof(src_tmp) - 1, "%s/%s", base_path, dp->d_name);
