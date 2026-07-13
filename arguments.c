@@ -26,7 +26,7 @@ void display_help(void) {
             "\n\t[-f --conf]\t<CONF_FILE>" \
             "\n\t[-h --help]\n" \
             "\n\t[-v --version]\n" \
-            "\nDefault location:~/.config/cvrt/config.ini\n" \
+            "\nDefault location:~/.config/torg/config.ini\n" \
             "\nSample config.ini" \
             "\n------------------" \
             "\n\t[filter]" \
@@ -36,14 +36,6 @@ void display_help(void) {
             "\n\t; set the required file types, if filter is enabled" \
             "\n\t; then this field is mandatory" \
             "\n\tfile_types = .wav .flac" \
-            "\n\t[copy]" \
-            "\n\t; if filter is enabled, then other files types" \
-            "\n\t; will be copied to the new location" \
-            "\n\tenabled = true" \
-            "\n\t; if copy is enabled, will copy the file types below" \
-            "\n\t; * or blank for all files other than" \
-            "\n\t; the above filtered ones" \
-            "\n\tfile_types =" \
             "\n" \
             "\n\t[core]" \
             "\n\t; base folder, destination folder, and new name prefix" \

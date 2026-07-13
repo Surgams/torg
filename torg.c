@@ -19,6 +19,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "torg.h"
 #include "config.h"
 #include "filemgm.h"
+#include "exec.h"
 
 #define CONFIG_FOLDER "/.config/torg"
                                                                          
@@ -54,8 +55,10 @@ int main(int argc, char * const argv[]) {
     int proceed = getchar();
     if (proceed != 'y' && proceed != 'Y')
         return 0;
-
+    
+    copy_files_recursively(*configs);
     free(configs);
+    printf("\n\nFinished copying the directory tree");
     return 0;
 }
 

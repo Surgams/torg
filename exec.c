@@ -24,16 +24,27 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include "exec.h"
 #include "filemgm.h"
 
+static int check_if_dir(char *path) {
+    struct stat st = {0};
+    if (stat(path, &st) == - 1) {
+        return 0; 
+    } else if (st.st_mode & S_IFDIR) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
 
 void copy_files_recursively (Configs configs) {
     char *base_path = configs.base_dir;
     char *dest_path = configs.dest_dir;
 
     int output;
-    char path[MAX_PATH_LEN], new_path[MAX_PATH_LEN];
+    char path[MAX_PATH_LEN] = "", new_path[MAX_PATH_LEN] = "";
     struct dirent *dp;
     char *point;
     
@@ -47,20 +58,20 @@ void copy_files_recursively (Configs configs) {
         fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
         return;
     }
-
+    int file_index = 0;
     while ((dp = readdir(dir)) != NULL) {
-        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0) {
+        if (strcmp(dp->d_name, "~.") != 0 && strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0) {
             if ((point = strrchr(dp->d_name,'.')) != NULL) {
 
                 if (strstr(configs.filter_types, point) != NULL) {
 
                     /* Preparing source and destination files */
-                    /** for destination file we will need later a counter to match the file namei**/
                     char  src_tmp[MAX_PATH_LEN] = "", dest_tmp[MAX_PATH_LEN] = "";
 
-                    snprintf(dest_tmp, sizeof(dest_tmp) - 1, "%s/%s", dest_path, dp->d_name);
+                    snprintf(dest_tmp, sizeof(dest_tmp) - 1, "%s/%s%03d%s", dest_path, configs.name_prefix, file_index++, point);
                     snprintf(src_tmp, sizeof(src_tmp) - 1, "%s/%s", base_path, dp->d_name);
                     copy_file (src_tmp, dest_tmp);
+                    /*** Missing the dictionary******/
                 }
             }
 
@@ -68,15 +79,18 @@ void copy_files_recursively (Configs configs) {
             sprintf(path, "%s/%s", base_path, dp->d_name);
             sprintf(new_path, "%s/%s", dest_path, dp->d_name);
 
-            if ((output = create_dir(dest_path)) != 0) {
-                fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
-                return;
+            if (check_if_dir(path)) {
+                if ((output = create_dir(dest_path)) != 0) {
+                    fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
+                    return;
+                }
+                /*** Need to update the configuration ****/
+                Configs tmp_configs;
+                strcpy(tmp_configs.base_dir, path);
+                strcpy(tmp_configs.dest_dir, new_path);
+                strcpy(tmp_configs.filter_types, configs.filter_types);
+                copy_files_recursively(tmp_configs);
             }
-            Configs tmp_configs;
-            strcpy(tmp_configs.base_dir, path);
-            strcpy(tmp_configs.dest_dir, new_path);
-            strcpy(tmp_configs.filter_types, configs.filter_types);
-            copy_files_recursively(tmp_configs);
         }
     }
     if (dp == NULL)

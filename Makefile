@@ -1,7 +1,7 @@
 CC =ccc
 #CC =cc
-CFLAGS=-std=c11 -O3 -Wall -Werror -Wextra -pedantic
-CFLAGS_DEBUG=-std=c11 -g3 -Wall -Werror -Wextra -pedantic -fsanitize=address
+CFLAGS=-O3 -Wall -Werror -Wextra -pedantic
+CFLAGS_DEBUG=-g3 -Wall -Werror -Wextra -pedantic 
 
 RM=rm -f
 MK=mkdir -p $(OUTPUT_DIR)
