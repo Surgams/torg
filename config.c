@@ -13,9 +13,41 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include<string.h>
 #include <stdio.h>
+#include <ctype.h>
 #include "arguments.h"
 #include "ini.h"
 #include "config.h"
+
+
+static char * home_path_cat(const char *path, const char *home, char *output) {
+    size_t path_len = strlen(path);
+    size_t home_len = strlen(home);
+
+    for (size_t i = 0; i < home_len; i++) {
+        output[i] = home[i];
+    }
+    if (output[home_len] == '/') { 
+        output[home_len] = '\0';
+        home_len--;
+    }
+
+    /* skipping ~ */
+    for (size_t i = 1; i < path_len; i++) {
+        output[home_len + i -1] = path[i];
+    }
+    return output;
+}
+
+/* Case insensitive string compare */
+static int strcmpci(const char *a, const char *b) {
+    for (;;) {
+        int d = tolower(*a) - tolower(*b);
+        if (d != 0 || !*a) {
+            return d;
+        }
+        a++, b++;
+    }
+}
 
 static void trim_l (char *str) {
     int index =0, i, j ;
@@ -40,6 +72,7 @@ void initialise_configs (Configs *configs) {
     memset (configs->dest_dir, '\0', MAX_PATH_LEN);
     memset (configs->config_file_path, '\0', MAX_PATH_LEN);
     memset (configs->name_prefix, '\0', PREFIX_LEN);
+    configs->do_generate_dictionary = false;
 }
 
 uint8_t process_configs(int argc, char **argv, Configs *configs) {
@@ -65,7 +98,8 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
     } 
 
     /* config file loaded */
-    if (strcmp(ini_get(config, "filter", "enabled"), "true") == 0) {  
+    if ((strcmpci(ini_get(config, "filter", "enabled"), "true") == 0) ||
+            (strcmpci(ini_get(config, "filter", "enabled"), "yes") == 0)) {  
         configs->isfilter = true;
         if ((file_types = (char *)ini_get(config, "filter", "file_types")) == NULL) {
             fprintf(stderr, "Error: 'file_types' configuration is missing\n");
@@ -87,7 +121,14 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
             if (baselen < MAX_PATH_LEN) {
                 if (base_dir[baselen - 1] == '/')
                     base_dir[baselen - 1] = '\0';
-                strncpy(configs->base_dir, base_dir, MAX_PATH_LEN - 1);
+                if (base_dir[0] == '~') {
+                    char *home = getenv("HOME");
+                    if (baselen + strlen(home) < MAX_PATH_LEN)
+                        snprintf(configs->base_dir, MAX_PATH_LEN - 1, "%s", home_path_cat(base_dir, home, configs->base_dir));
+                }
+                else {
+                    strncpy(configs->base_dir, base_dir, MAX_PATH_LEN - 1);
+                }
                 configs->base_dir[MAX_PATH_LEN - 1] = 0;
             } else {
                 fprintf(stderr, "Destination directory path is too long");
@@ -105,7 +146,14 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
             if (destlen < MAX_PATH_LEN) {
                 if (dest_dir[destlen - 1] == '/')
                     dest_dir[destlen - 1] = '\0';
-                strncpy(configs->dest_dir, dest_dir, MAX_PATH_LEN - 1);
+                if (dest_dir[0] == '~') {
+                    char *home = getenv("HOME");
+                    if (destlen + strlen(home) < MAX_PATH_LEN)
+                        snprintf(configs->dest_dir, MAX_PATH_LEN - 1, "%s", home_path_cat(dest_dir, home, configs->dest_dir));
+                }
+                else {
+                    strncpy(configs->dest_dir, dest_dir, MAX_PATH_LEN - 1);
+                }
                 configs->dest_dir[MAX_PATH_LEN - 1] = 0;
             } else {
                 fprintf(stderr, "Destination directory path is too long");
@@ -123,5 +171,13 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
         strncpy(configs->name_prefix, name_prefix, PREFIX_LEN - 1);
         configs->name_prefix[PREFIX_LEN - 1] = 0;
     }
+
+    if ((strcmpci(ini_get(config, "core", "generate_dict"), "true") == 0) ||
+            (strcmpci(ini_get(config, "core", "generate_dict"), "yes") == 0)) {  
+        configs->do_generate_dictionary = true;
+    } else {
+        configs->do_generate_dictionary = false;
+    }
+
     return 0;
 }

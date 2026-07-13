@@ -19,7 +19,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <stdio.h>
 #include "filemgm.h"
 
-int8_t create_dir (char *path) {
+int8_t create_dir (const char *path) {
     struct stat st = {0};
 
     if (stat(path, &st) == - 1) {

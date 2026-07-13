@@ -3,7 +3,7 @@
 
 #include <unistd.h>
 
-int8_t create_dir (char *path);
+int8_t create_dir (const char *path);
 void copy_file (char *srcfile, char *destfile);
 
 #endif

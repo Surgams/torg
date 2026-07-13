@@ -45,7 +45,7 @@ static int check_if_dir(char *path) {
 void copy_files_recursively (Configs configs) {
     char *base_path = configs.base_dir;
     char *dest_path = configs.dest_dir;
-
+    
     int output;
     char path[MAX_PATH_LEN] = "", new_path[MAX_PATH_LEN] = "";
     struct dirent *dp;
@@ -71,15 +71,19 @@ void copy_files_recursively (Configs configs) {
                     /* Preparing source and destination files */
                     char  src_tmp[MAX_PATH_LEN] = "", dest_tmp[MAX_PATH_LEN] = "", dict_path[MAX_PATH_LEN] = "";
 
-                    snprintf(dest_tmp, MAX_PATH_LEN - 1, "%s/%s%03d%s", dest_path, configs.name_prefix, file_index++, point);
+                    snprintf(dest_tmp, MAX_PATH_LEN - 1, "%s/%s%03d%s", dest_path, configs.name_prefix, file_index, point);
                     snprintf(src_tmp, MAX_PATH_LEN - 1, "%s/%s", base_path, dp->d_name);
-                    snprintf(dict_path, MAX_PATH_LEN - 1, "%s/%s", dest_path, dict_name);
 
                     copy_file (src_tmp, dest_tmp);
-                    /*** Missing the dictionary******/
-                    dict_fptr = fopen(dict_path, "a");
-                    fprintf(dict_fptr, "\n%s -> %s", src_tmp, dest_tmp);
-                    fclose(dict_fptr);
+                    
+                    /* Adding the files dictionary if required */
+                    if (configs.do_generate_dictionary) { 
+                        snprintf(dict_path, MAX_PATH_LEN - 1, "%s/%s", dest_path, dict_name);
+                        dict_fptr = fopen(dict_path, "a");
+                        fprintf(dict_fptr, "\n%s -> %s%03d%s", dp->d_name, configs.name_prefix, file_index, point);
+                        fclose(dict_fptr);
+                        file_index++;
+                    }
                 }
             }
 
@@ -98,6 +102,7 @@ void copy_files_recursively (Configs configs) {
                 strcpy(tmp_configs.dest_dir, new_path);
                 strcpy(tmp_configs.filter_types, configs.filter_types);
                 strcpy(tmp_configs.name_prefix, configs.name_prefix);
+                tmp_configs.do_generate_dictionary = configs.do_generate_dictionary; 
                 copy_files_recursively(tmp_configs);
             }
         }

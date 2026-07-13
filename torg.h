@@ -14,6 +14,7 @@ typedef struct Configs_ {
     char dest_dir[MAX_PATH_LEN];
     char name_prefix[PREFIX_LEN];
     char config_file_path[MAX_PATH_LEN];
+    bool do_generate_dictionary;
 } Configs;
 
 #endif
