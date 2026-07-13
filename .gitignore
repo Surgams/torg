@@ -54,5 +54,6 @@ dkms.conf
 
 
 Makefile.depend
-Session.vim
+*.vim
+*.geany
 bin

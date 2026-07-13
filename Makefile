@@ -1,7 +1,7 @@
 CC =ccc
 #CC =cc
-CFLAGS=-std=c11 -O3 -Wall -Werror -Wextra -pedantic
-CFLAGS_DEBUG=-std=c11 -g3 -Wall -Werror -Wextra -pedantic
+CFLAGS=-O3 -Wall -Werror -Wextra -pedantic
+CFLAGS_DEBUG=-g3 -Wall -Werror -Wextra -pedantic 
 
 RM=rm -f
 MK=mkdir -p $(OUTPUT_DIR)
@@ -9,8 +9,8 @@ MK=mkdir -p $(OUTPUT_DIR)
 PROJECT_O=torg.o
 PROJECT_B=torg
 OUTPUT_DIR=bin
-OBJECTS=torg.o versdts.o ini.o config.o arguments.o
-SOURCES=torg.c versdts.c ini.c config.c arguments.c
+OBJECTS=torg.o versdts.o ini.o config.o arguments.o filemgm.o exec.o
+SOURCES=torg.c versdts.c ini.c config.c arguments.c filemgm.c exec.c
 
 VERSION=0.0.0
 OUTPUT=$(PROJECT_B)

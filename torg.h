@@ -10,8 +10,6 @@
 typedef struct Configs_ {
     bool isfilter;
     char filter_types[FILE_TYPE_LEN];
-    bool iscopy;
-    char copy_types[FILE_TYPE_LEN];
     char base_dir[MAX_PATH_LEN];
     char dest_dir[MAX_PATH_LEN];
     char name_prefix[PREFIX_LEN];
