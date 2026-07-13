@@ -27,40 +27,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "exec.h"
 #include "filemgm.h"
 
-#define DELIMETER " "
-#define CMD_ARG 200
-char **ftypes;
 
-static int cmd_arg_split (char *cmd, char **cmd_array, const char *delimiter) {
-    char *token;
-    int counter = 0;
-
-    while ((token = strsep(&cmd, delimiter)) != NULL) {
-        bool isempty = true;
-        while (*token != '\0') {
-            if (!isspace(*token)) {
-                isempty = false;
-                break;
-            }
-        }
-        if (isempty)
-            continue;
-
-        cmd_array[counter] = (char *) malloc((strlen(token) + 1) * sizeof(char));
-        sprintf(cmd_array[counter], "%s", token);
-
-        if (counter++ >= CMD_ARG - 1)
-            return 1;
-    }
-    cmd_array[counter] = NULL;
-    return 0;
-}
-
-void convert_files_recursively (Configs configs) {
+void copy_files_recursively (Configs configs) {
     char *base_path = configs.base_dir;
     char *dest_path = configs.dest_dir;
 
-    int output, pid;
+    int output;
     char path[MAX_PATH_LEN], new_path[MAX_PATH_LEN];
     struct dirent *dp;
     char *point;
@@ -82,63 +54,13 @@ void convert_files_recursively (Configs configs) {
 
                 if (strstr(configs.filter_types, point) != NULL) {
 
-                    /* Preparing input and output files */
-                    char  i_tmp[MAX_PATH_LEN] = {}, o_tmp[MAX_PATH_LEN] = {};
-                    
-                    /* output temp file format string */
-                    char format[20] = "%s/%.*s";
-                    strcat(format, configs.cvrt_type);
+                    /* Preparing source and destination files */
+                    /** for destination file we will need later a counter to match the file namei**/
+                    char  src_tmp[MAX_PATH_LEN] = "", dest_tmp[MAX_PATH_LEN] = "";
 
-                    snprintf(o_tmp, sizeof(o_tmp) - 1, format, dest_path, (int)(strlen(dp->d_name) - strlen(point)), dp->d_name);
-                    snprintf(i_tmp, sizeof(i_tmp) - 1, "%s/%s", base_path, dp->d_name);
-
-                    char *fullcmd = strdup(configs.full_cmd);
-
-                    /* Preparing the arguments array */
-                    char *args[CMD_ARG] = {0};
-                    cmd_arg_split(fullcmd, args, DELIMETER); 
-
-                    /* Replacing the placeholders '?' with input and output filenames */
-                    bool is_inputfile = true;
-                    for (int i = 0; args[i] != NULL && i < CMD_ARG; i++) {
-                        if (strcmp(args[i], "?") == 0) {
-                            if (is_inputfile) {
-                                args[i] = (char *)realloc (args[i], strlen(i_tmp) + 1);
-                                strcpy(args[i], i_tmp);
-                                args[i][strlen(i_tmp)] = '\0';
-                                is_inputfile = false;
-                            } else {
-                                args[i] = (char *)realloc (args[i], strlen(o_tmp) + 1);
-                                strcpy(args[i], o_tmp);
-                                args[i][strlen(o_tmp)] = '\0';
-                            }
-                        }
-                    }
-                    if((pid = fork()) == 0) {
-                        execvp(args[0], (char *const *)args);
-                        _exit(0);
-                    } else if (pid > 0) {
-                        wait(NULL);
-                        /* Freeing the args array */
-                        for(int i = 0; args[i] != NULL && i < CMD_ARG; i++) {
-                            free(args[i]);
-                            args[i] = NULL;
-                        }
-                        if (fullcmd != NULL) {
-                            free(fullcmd);
-                            fullcmd = NULL;
-                        }
-                    }
-                } else if (configs.iscopy) {
-                    if ((strcmp(configs.copy_types, "*") == 0) || (strstr(configs.copy_types, point) != NULL)) {
-
-                        /* Preparing source and destination files */
-                        char  src_tmp[MAX_PATH_LEN] = '\0', dest_tmp[MAX_PATH_LEN] = '\0';
-
-                        snprintf(dest_tmp, sizeof(dest_tmp) - 1, "%s/%s", dest_path, dp->d_name);
-                        snprintf(src_tmp, sizeof(src_tmp) - 1, "%s/%s", base_path, dp->d_name);
-                        copy_file (src_tmp, dest_tmp);
-                    }
+                    snprintf(dest_tmp, sizeof(dest_tmp) - 1, "%s/%s", dest_path, dp->d_name);
+                    snprintf(src_tmp, sizeof(src_tmp) - 1, "%s/%s", base_path, dp->d_name);
+                    copy_file (src_tmp, dest_tmp);
                 }
             }
 
@@ -153,26 +75,12 @@ void convert_files_recursively (Configs configs) {
             Configs tmp_configs;
             strcpy(tmp_configs.base_dir, path);
             strcpy(tmp_configs.dest_dir, new_path);
-            strcpy(tmp_configs.full_cmd, configs.full_cmd);
-            strcpy(tmp_configs.cvrt_type, configs.cvrt_type);
             strcpy(tmp_configs.filter_types, configs.filter_types);
-            tmp_configs.iscopy = configs.iscopy;
-            strcpy(tmp_configs.copy_types, configs.copy_types);
-            convert_files_recursively(tmp_configs);
+            copy_files_recursively(tmp_configs);
         }
     }
     if (dp == NULL)
     closedir(dir);
 }
 
-void free_cmd () {
-    for(int i = 0; ftypes != NULL && ftypes[i] != NULL && i < FILE_TYPE_LEN; i++) {
-        free(ftypes[i]);
-        ftypes[i] = NULL;
-    }
-    if(ftypes != NULL) {
-        free(ftypes);
-        ftypes = NULL;
-    }
-}
 

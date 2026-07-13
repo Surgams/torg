@@ -36,8 +36,6 @@ static void trim_l (char *str) {
 void initialise_configs (Configs *configs) {
     configs->isfilter = false;
     memset (configs->filter_types, '\0', FILE_TYPE_LEN);
-    configs->iscopy = false;
-    memset (configs->copy_types, '\0', FILE_TYPE_LEN);
     memset (configs->base_dir, '\0', MAX_PATH_LEN);
     memset (configs->dest_dir, '\0', MAX_PATH_LEN);
     memset (configs->config_file_path, '\0', MAX_PATH_LEN);
@@ -75,19 +73,6 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
         }
         strncpy(configs->filter_types, file_types, FILE_TYPE_LEN - 1);
         configs->filter_types[FILE_TYPE_LEN - 1] = '\0';
-
-        /* copy other files settings */
-        if (strcmp(ini_get(config, "copy", "enabled"), "true") == 0) {  
-            configs->iscopy = true;
-            if ((file_types = (char *)ini_get(config, "copy", "file_types")) == NULL) 
-                strcpy(configs->copy_types, "*");
-            else {
-                strncpy(configs->copy_types, file_types, FILE_TYPE_LEN - 1);
-                configs->copy_types[FILE_TYPE_LEN -1] = 0;
-            }
-        } else {
-            configs->iscopy = false;
-        }
     }
 
     base_dir = (char *)ini_get(config, "core", "base_dir");

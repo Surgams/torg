@@ -4,7 +4,6 @@
 #include "torg.h"
 
 
-void convert_files_recursively (Configs configs);
-void free_cmd (void);
+void copy_files_recursively (Configs configs);
 
 #endif
