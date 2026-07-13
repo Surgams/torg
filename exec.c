@@ -28,6 +28,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "exec.h"
 #include "filemgm.h"
 
+static FILE *dict_fptr;
+static const char dict_name[] = "dictionary.txt";
+
 static int check_if_dir(char *path) {
     struct stat st = {0};
     if (stat(path, &st) == - 1) {
@@ -58,7 +61,7 @@ void copy_files_recursively (Configs configs) {
         fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
         return;
     }
-    int file_index = 0;
+    int file_index = 1;
     while ((dp = readdir(dir)) != NULL) {
         if (strcmp(dp->d_name, "~.") != 0 && strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0) {
             if ((point = strrchr(dp->d_name,'.')) != NULL) {
@@ -66,12 +69,17 @@ void copy_files_recursively (Configs configs) {
                 if (strstr(configs.filter_types, point) != NULL) {
 
                     /* Preparing source and destination files */
-                    char  src_tmp[MAX_PATH_LEN] = "", dest_tmp[MAX_PATH_LEN] = "";
+                    char  src_tmp[MAX_PATH_LEN] = "", dest_tmp[MAX_PATH_LEN] = "", dict_path[MAX_PATH_LEN] = "";
 
-                    snprintf(dest_tmp, sizeof(dest_tmp) - 1, "%s/%s%03d%s", dest_path, configs.name_prefix, file_index++, point);
-                    snprintf(src_tmp, sizeof(src_tmp) - 1, "%s/%s", base_path, dp->d_name);
+                    snprintf(dest_tmp, MAX_PATH_LEN - 1, "%s/%s%03d%s", dest_path, configs.name_prefix, file_index++, point);
+                    snprintf(src_tmp, MAX_PATH_LEN - 1, "%s/%s", base_path, dp->d_name);
+                    snprintf(dict_path, MAX_PATH_LEN - 1, "%s/%s", dest_path, dict_name);
+
                     copy_file (src_tmp, dest_tmp);
                     /*** Missing the dictionary******/
+                    dict_fptr = fopen(dict_path, "a");
+                    fprintf(dict_fptr, "\n%s -> %s", src_tmp, dest_tmp);
+                    fclose(dict_fptr);
                 }
             }
 
@@ -89,6 +97,7 @@ void copy_files_recursively (Configs configs) {
                 strcpy(tmp_configs.base_dir, path);
                 strcpy(tmp_configs.dest_dir, new_path);
                 strcpy(tmp_configs.filter_types, configs.filter_types);
+                strcpy(tmp_configs.name_prefix, configs.name_prefix);
                 copy_files_recursively(tmp_configs);
             }
         }
