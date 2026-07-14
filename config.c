@@ -128,15 +128,19 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
                     base_dir[baselen - 1] = '\0';
                 if (base_dir[0] == '~') {
                     char *home = getenv("HOME");
-                    if (baselen + strlen(home) < MAX_PATH_LEN -1)
+                    if (baselen + strlen(home) < MAX_PATH_LEN -1) {
                         snprintf(configs->base_dir, MAX_PATH_LEN, "%s", home_path_cat(base_dir, home, home_path_output));
+                    } else {
+                        fprintf(stderr, "Base directory path is too long");
+                        return 1;
+                    }
                 }
                 else {
                     strncpy(configs->base_dir, base_dir, MAX_PATH_LEN - 1);
                 }
                 configs->base_dir[MAX_PATH_LEN - 1] = 0;
             } else {
-                fprintf(stderr, "Destination directory path is too long");
+                fprintf(stderr, "Base directory path is too long");
                 return 1;
             }
         }
@@ -153,8 +157,12 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
                     dest_dir[destlen - 1] = '\0';
                 if (dest_dir[0] == '~') {
                     char *home = getenv("HOME");
-                    if (destlen + strlen(home) < MAX_PATH_LEN - 1)
+                    if (destlen + strlen(home) < MAX_PATH_LEN - 1) {
                         snprintf(configs->dest_dir, MAX_PATH_LEN, "%s", home_path_cat(dest_dir, home, home_path_output));
+                    } else {
+                        fprintf(stderr, "Destination directory path is too long");
+                        return 1;
+                    }
                 }
                 else {
                     strncpy(configs->dest_dir, dest_dir, MAX_PATH_LEN - 1);
