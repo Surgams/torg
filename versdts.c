@@ -31,6 +31,6 @@ uint8_t display_system_details(void) {
 }
 
 void display_current_version(void) {
-    printf("Current cvrt version is %s\n", VERSION);
+    printf("Current torg version is %s\n", VERSION);
 }
 
