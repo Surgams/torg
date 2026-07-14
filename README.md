@@ -37,7 +37,7 @@ Options:
 Default configuration file location: ~/.config/torg/config.ini
 
 ## Configuration
-torg uses INI-format configuration files. The project uses the ini module by rxi for parsing.
+torg uses INI-format configuration files. 
 
 ### Sample Configuration File
 

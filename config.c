@@ -194,5 +194,6 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
     
     free(home_path_output);
     home_path_output = NULL;
+    ini_free(config);
     return 0;
 }

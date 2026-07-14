@@ -1,7 +1,8 @@
 #CC =ccc
 CC =cc
-CFLAGS=-O3 -Wall -Werror -Wextra -pedantic
+CFLAGS=-O3 -Wall -Werror -Wextra -pedantic 
 CFLAGS_DEBUG=-g3 -Wall -Werror -Wextra -pedantic 
+#LDFLAGS_DEBUG = -fsanitize=address
 
 RM=rm -f
 MK=mkdir -p $(OUTPUT_DIR)
@@ -9,13 +10,14 @@ MK=mkdir -p $(OUTPUT_DIR)
 PROJECT_O=torg.o
 PROJECT_B=torg
 OUTPUT_DIR=bin
-OBJECTS=torg.o versdts.o ini.o config.o arguments.o filemgm.o exec.o
+OBJECTS=torg.o versdts.o ini.o config.o arguments.o filemgm.o exec.o 
 SOURCES=torg.c versdts.c ini.c config.c arguments.c filemgm.c exec.c
 
 VERSION=0.0.0
 OUTPUT=$(PROJECT_B)
 
 -include Makefile.depend
+.PHONY: all build debug clean depend
 
 all: build 
 
@@ -23,7 +25,7 @@ build: depend PROJECT_O PROJECT_B
 
 debug:
 		$(MK)
-		$(CC)  -c $(SOURCES) $(CFLAGS_DEBUG)
+		$(CC) -c $(SOURCES) $(CFLAGS_DEBUG)
 		$(CC) -o $(OUTPUT_DIR)/$(PROJECT_B) $(OBJECTS) $(LIBS)
 
 PROJECT_O:
