@@ -69,10 +69,16 @@ void copy_files_recursively (Configs configs) {
                 if (strstr(configs.filter_types, point) != NULL) {
 
                     /* Preparing source and destination files */
-                    char  src_tmp[MAX_PATH_LEN] = "", dest_tmp[MAX_PATH_LEN] = "", dict_path[MAX_PATH_LEN] = "";
+                    /** str len for all string, 3 for file_index and 1 for / + 1 */
+                    size_t dest_len = strlen(dest_path) + strlen(configs.name_prefix) + 2 + strlen(point) + 2;
+                    size_t src_len = strlen(dest_path) + strlen(dp->d_name) + 2;
+                    char  src_tmp[src_len], dest_tmp[dest_len], dict_path[MAX_PATH_LEN] = "";
 
-                    snprintf(dest_tmp, MAX_PATH_LEN - 1, "%s/%s%03d%s", dest_path, configs.name_prefix, file_index, point);
-                    snprintf(src_tmp, MAX_PATH_LEN - 1, "%s/%s", base_path, dp->d_name);
+                    memset(src_tmp, 0, src_len);
+                    memset(dest_tmp, 0, dest_len);
+
+                    snprintf(dest_tmp, dest_len- 1, "%s/%s%03d%s", dest_path, configs.name_prefix, file_index, point);
+                    snprintf(src_tmp, src_len -1, "%s/%s", base_path, dp->d_name);
 
                     copy_file (src_tmp, dest_tmp);
                     
@@ -88,7 +94,11 @@ void copy_files_recursively (Configs configs) {
             }
 
             /* Construct new path from our base path */
-            sprintf(path, "%s/%s", base_path, dp->d_name);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+            snprintf(path, MAX_PATH_LEN - 1, "%s/%s", base_path, dp->d_name);
+            path[MAX_PATH_LEN -1] = 0;
+#pragma GCC diagnostic pop
             sprintf(new_path, "%s/%s", dest_path, dp->d_name);
 
             if (check_if_dir(path)) {

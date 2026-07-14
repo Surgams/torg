@@ -20,6 +20,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 
 static char * home_path_cat(const char *path, const char *home, char *output) {
+    memset (output, 0, MAX_PATH_LEN);
     size_t path_len = strlen(path);
     size_t home_len = strlen(home);
 
@@ -35,6 +36,7 @@ static char * home_path_cat(const char *path, const char *home, char *output) {
     for (size_t i = 1; i < path_len; i++) {
         output[home_len + i -1] = path[i];
     }
+    output[MAX_PATH_LEN - 1] = 0;
     return output;
 }
 
@@ -109,6 +111,9 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
         configs->filter_types[FILE_TYPE_LEN - 1] = '\0';
     }
 
+    /* To hold the home path in case ~ was used */
+    char *home_path_output = (char *) malloc(MAX_PATH_LEN);
+
     base_dir = (char *)ini_get(config, "core", "base_dir");
     dest_dir = (char *)ini_get(config, "core", "dest_dir");
 
@@ -123,8 +128,8 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
                     base_dir[baselen - 1] = '\0';
                 if (base_dir[0] == '~') {
                     char *home = getenv("HOME");
-                    if (baselen + strlen(home) < MAX_PATH_LEN)
-                        snprintf(configs->base_dir, MAX_PATH_LEN - 1, "%s", home_path_cat(base_dir, home, configs->base_dir));
+                    if (baselen + strlen(home) < MAX_PATH_LEN -1)
+                        snprintf(configs->base_dir, MAX_PATH_LEN, "%s", home_path_cat(base_dir, home, home_path_output));
                 }
                 else {
                     strncpy(configs->base_dir, base_dir, MAX_PATH_LEN - 1);
@@ -148,8 +153,8 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
                     dest_dir[destlen - 1] = '\0';
                 if (dest_dir[0] == '~') {
                     char *home = getenv("HOME");
-                    if (destlen + strlen(home) < MAX_PATH_LEN)
-                        snprintf(configs->dest_dir, MAX_PATH_LEN - 1, "%s", home_path_cat(dest_dir, home, configs->dest_dir));
+                    if (destlen + strlen(home) < MAX_PATH_LEN - 1)
+                        snprintf(configs->dest_dir, MAX_PATH_LEN, "%s", home_path_cat(dest_dir, home, home_path_output));
                 }
                 else {
                     strncpy(configs->dest_dir, dest_dir, MAX_PATH_LEN - 1);
@@ -178,6 +183,8 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
     } else {
         configs->do_generate_dictionary = false;
     }
-
+    
+    free(home_path_output);
+    home_path_output = NULL;
     return 0;
 }

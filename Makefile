@@ -1,5 +1,5 @@
-CC =ccc
-#CC =cc
+#CC =ccc
+CC =cc
 CFLAGS=-O3 -Wall -Werror -Wextra -pedantic
 CFLAGS_DEBUG=-g3 -Wall -Werror -Wextra -pedantic 
 
