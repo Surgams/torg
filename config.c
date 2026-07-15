@@ -97,7 +97,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
 
     if ((config = ini_load(config_file)) == NULL){
         /* create the folder first */
-        fprintf(stderr, "Error: configuration file %s is missing\n", config_file);
+        fprintf(stderr, "%d %s: Error: configuration file %s is missing\n", ((__LINE__)-6),__func__, config_file);
         display_help();
         return 1;
     } 
@@ -107,7 +107,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
             (strcmpci(ini_get(config, "filter", "enabled"), "yes") == 0)) {  
         configs->isfilter = true;
         if ((file_types = (char *)ini_get(config, "filter", "file_types")) == NULL) {
-            fprintf(stderr, "Error: 'file_types' configuration is missing\n");
+            fprintf(stderr, "%d %s: Error: 'file_types' configuration is missing\n", ((__LINE__)-6),__func__);
             ini_free(config);
             return 1;
         }
@@ -123,7 +123,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
 
     if (strnlen(configs->base_dir, MAX_PATH_LEN) == 0) {
         if (base_dir == NULL) {
-            fprintf(stderr, "Error: 'base_dir' configuration is missing\n");
+            fprintf(stderr, "%d %s: Error: 'base_dir' configuration is missing\n", ((__LINE__)-6),__func__);
             ini_free(config);
             return 1;
         } else {
@@ -136,7 +136,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
                     if (baselen + strlen(home) < MAX_PATH_LEN -1) {
                         snprintf(configs->base_dir, MAX_PATH_LEN, "%s", home_path_cat(base_dir, home, home_path_output));
                     } else {
-                        fprintf(stderr, "Base directory path is too long");
+                        fprintf(stderr, "%d %s: Base directory path is too long", ((__LINE__)-6),__func__);
                         ini_free(config);
                         return 1;
                     }
@@ -146,7 +146,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
                 }
                 configs->base_dir[MAX_PATH_LEN - 1] = 0;
             } else {
-                fprintf(stderr, "Base directory path is too long");
+                fprintf(stderr, "%d %s: Base directory path is too long", ((__LINE__)-6),__func__);
                 ini_free(config);
                 return 1;
             }
@@ -155,7 +155,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
 
     if (strnlen(configs->dest_dir, MAX_PATH_LEN) == 0) {
         if (dest_dir == NULL) {
-            fprintf(stderr, "Error: 'dest_dir' configuration is missing\n");
+            fprintf(stderr, "%d %s:Error: 'dest_dir' configuration is missing\n",((__LINE__)-6),__func__);
             return 1;
         } else {
             size_t destlen = strnlen(dest_dir, MAX_PATH_LEN);
@@ -167,7 +167,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
                     if (destlen + strlen(home) < MAX_PATH_LEN - 1) {
                         snprintf(configs->dest_dir, MAX_PATH_LEN, "%s", home_path_cat(dest_dir, home, home_path_output));
                     } else {
-                        fprintf(stderr, "Destination directory path is too long");
+                        fprintf(stderr, "%d %s: Destination directory path is too long",((__LINE__)-6),__func__);
                         ini_free(config);
                         return 1;
                     }
@@ -177,7 +177,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
                 }
                 configs->dest_dir[MAX_PATH_LEN - 1] = 0;
             } else {
-                fprintf(stderr, "Destination directory path is too long");
+                fprintf(stderr, "%d %s: Destination directory path is too long",((__LINE__)-6),__func__);
                 ini_free(config);
                 return 1;
             }
@@ -185,7 +185,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
     }
 
     if ((name_prefix = (char *)ini_get(config, "core", "name_prefix")) == NULL) {
-        fprintf(stderr, "Error: 'name_prefix' configuration is missing\n");
+        fprintf(stderr, "%d %s: Error: 'name_prefix' configuration is missing\n", ((__LINE__)-6),__func__);
         ini_free(config);
         return 1;
     } else {

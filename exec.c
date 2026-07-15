@@ -53,12 +53,12 @@ void copy_files_recursively (Configs configs) {
     
     DIR *dir = opendir(base_path);
     if (!dir) {
-        fprintf(stderr, "Error number %d: %s: %s\n", errno, strerror(errno), base_path);
+        fprintf(stderr, "%d %s: Error number %d: %s: %s\n", ((__LINE__) -6),__func__, errno, strerror(errno), base_path);
         return;
     }
 
     if ((output = create_dir(dest_path)) != 0) {
-        fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
+        fprintf(stderr, "%d %s: Error number %d: %s\n", ((__LINE__) -6),__func__, errno, strerror(errno));
         return;
     }
     int file_index = 1;
@@ -69,9 +69,12 @@ void copy_files_recursively (Configs configs) {
                 if (strstr(configs.filter_types, point) != NULL) {
 
                     /* Preparing source and destination files */
-                    /** str len for all string, 3 for file_index and 1 for / + 1 */
-                    size_t dest_len = strlen(dest_path) + strlen(configs.name_prefix) + 3 + strlen(point) + 4;
-                    size_t src_len = strlen(dest_path) + strlen(dp->d_name) + 4;
+                    size_t dest_len = strlen(dest_path) + strlen(configs.name_prefix) + strlen(point);
+                    size_t src_len = strlen(dest_path) + strlen(dp->d_name);
+                    
+                    dest_len = dest_len >= MAX_PATH_LEN ? dest_len : MAX_PATH_LEN;
+                    src_len = src_len >= MAX_PATH_LEN ? src_len : MAX_PATH_LEN;
+
                     char  src_tmp[src_len], dest_tmp[dest_len], dict_path[MAX_PATH_LEN] = "";
 
                     memset(src_tmp, 0, src_len);
@@ -103,7 +106,7 @@ void copy_files_recursively (Configs configs) {
 
             if (check_if_dir(path)) {
                 if ((output = create_dir(dest_path)) != 0) {
-                    fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
+                    fprintf(stderr, "%d %s: Error number %d: %s\n", ((__LINE__)-6),__func__, errno, strerror(errno));
                     return;
                 }
                 /*** Need to update the configuration ****/

@@ -56,12 +56,12 @@ void copy_file (char *srcfile, char *destfile) {
     dfd = open(destfile, O_RDWR | O_CREAT, 0700);
 
     if (sfd == -1) {
-        fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
+        fprintf(stderr, "%d %s: Error number %d: %s\n", ((__LINE__)),__func__, errno, strerror(errno));
         return;
     }
 
     if (dfd == -1) {
-        fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
+        fprintf(stderr, "%d %s: Error number %d: %s\n",  ((__LINE__)),__func__, errno, strerror(errno));
         close(sfd);
         return;
     }
@@ -76,7 +76,7 @@ void copy_file (char *srcfile, char *destfile) {
     src = mmap(NULL, filesize, PROT_READ, MAP_PRIVATE, sfd, 0);
 
     if (src == MAP_FAILED) {
-        fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
+        fprintf(stderr, "%d %s: Error number %d: %s\n",  ((__LINE__)),__func__, errno, strerror(errno));
         cleanup(FILES, sfd, dfd, src, NULL, filesize);
         return;
     }
@@ -84,7 +84,7 @@ void copy_file (char *srcfile, char *destfile) {
 
 
     if (ftruncate(dfd, filesize) != 0) {
-        fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
+        fprintf(stderr, "%d %s: Error number %d: %s\n",  ((__LINE__)),__func__, errno, strerror(errno));
         cleanup(MAP_SRC, sfd, dfd, src, NULL, filesize);
         return;
     }
@@ -92,7 +92,7 @@ void copy_file (char *srcfile, char *destfile) {
     dest = mmap(NULL, filesize, PROT_READ | PROT_WRITE, MAP_SHARED, dfd, 0);
 
     if (dest == MAP_FAILED) {
-        fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
+        fprintf(stderr, "%d %s: Error number %d: %s\n",  ((__LINE__)),__func__, errno, strerror(errno));
         cleanup(MAP_SRC, sfd, dfd, src, NULL, filesize);
         return;
     }
