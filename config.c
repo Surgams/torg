@@ -24,6 +24,9 @@ static char * home_path_cat(const char *path, const char *home, char *output) {
     size_t path_len = strlen(path);
     size_t home_len = strlen(home);
 
+    if (path_len + home_len > MAX_PATH_LEN -1)
+        return NULL;
+
     for (size_t i = 0; i < home_len; i++) {
         output[i] = home[i];
     }
@@ -105,6 +108,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
         configs->isfilter = true;
         if ((file_types = (char *)ini_get(config, "filter", "file_types")) == NULL) {
             fprintf(stderr, "Error: 'file_types' configuration is missing\n");
+            ini_free(config);
             return 1;
         }
         strncpy(configs->filter_types, file_types, FILE_TYPE_LEN - 1);
@@ -120,6 +124,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
     if (strnlen(configs->base_dir, MAX_PATH_LEN) == 0) {
         if (base_dir == NULL) {
             fprintf(stderr, "Error: 'base_dir' configuration is missing\n");
+            ini_free(config);
             return 1;
         } else {
             size_t baselen = strnlen(base_dir, MAX_PATH_LEN);
@@ -132,6 +137,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
                         snprintf(configs->base_dir, MAX_PATH_LEN, "%s", home_path_cat(base_dir, home, home_path_output));
                     } else {
                         fprintf(stderr, "Base directory path is too long");
+                        ini_free(config);
                         return 1;
                     }
                 }
@@ -141,6 +147,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
                 configs->base_dir[MAX_PATH_LEN - 1] = 0;
             } else {
                 fprintf(stderr, "Base directory path is too long");
+                ini_free(config);
                 return 1;
             }
         }
@@ -161,6 +168,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
                         snprintf(configs->dest_dir, MAX_PATH_LEN, "%s", home_path_cat(dest_dir, home, home_path_output));
                     } else {
                         fprintf(stderr, "Destination directory path is too long");
+                        ini_free(config);
                         return 1;
                     }
                 }
@@ -170,6 +178,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
                 configs->dest_dir[MAX_PATH_LEN - 1] = 0;
             } else {
                 fprintf(stderr, "Destination directory path is too long");
+                ini_free(config);
                 return 1;
             }
         }
@@ -177,9 +186,10 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
 
     if ((name_prefix = (char *)ini_get(config, "core", "name_prefix")) == NULL) {
         fprintf(stderr, "Error: 'name_prefix' configuration is missing\n");
+        ini_free(config);
         return 1;
     } else {
-        name_prefix[PREFIX_LEN] = 0;
+        name_prefix[PREFIX_LEN -1] = 0;
         trim_l(name_prefix);
         strncpy(configs->name_prefix, name_prefix, PREFIX_LEN - 1);
         configs->name_prefix[PREFIX_LEN - 1] = 0;

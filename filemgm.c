@@ -20,6 +20,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <stdio.h>
 #include "filemgm.h"
 
+enum step {FILES = 1, MAP_SRC, MAP_DEST};
+
+static void cleanup (int step, int s_fd, int d_fd, void *src, void *dest, size_t filesize) {
+    /* close handlers */
+    if (step >= FILES) {
+        close(s_fd);
+        close(d_fd);
+    } 
+    /* unmap */
+    if (step >= MAP_SRC) {
+        munmap(src, filesize);
+    }
+    if (step >= MAP_DEST) {
+        munmap(dest, filesize);
+    }
+}
+
 int8_t create_dir (const char *path) {
     struct stat st = {0};
 
@@ -36,30 +53,39 @@ void copy_file (char *srcfile, char *destfile) {
     size_t filesize;
 
     sfd = open(srcfile, O_RDONLY);
-    
+    dfd = open(destfile, O_RDWR | O_CREAT, 0700);
+
     if (sfd == -1) {
         fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
         return;
     }
 
+    if (dfd == -1) {
+        fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
+        close(sfd);
+        return;
+    }
+
     filesize = lseek(sfd, 0, SEEK_END);
+
+    if (!filesize) {
+        cleanup(FILES, sfd, dfd, NULL, NULL, filesize);
+        return;
+    }
 
     src = mmap(NULL, filesize, PROT_READ, MAP_PRIVATE, sfd, 0);
 
     if (src == MAP_FAILED) {
         fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
+        cleanup(FILES, sfd, dfd, src, NULL, filesize);
         return;
     }
 
-    dfd = open(destfile, O_RDWR | O_CREAT, 0700);
 
-    if (dfd == -1) {
-        fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
-        return;
-    }
 
     if (ftruncate(dfd, filesize) != 0) {
         fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
+        cleanup(MAP_SRC, sfd, dfd, src, NULL, filesize);
         return;
     }
 
@@ -67,17 +93,11 @@ void copy_file (char *srcfile, char *destfile) {
 
     if (dest == MAP_FAILED) {
         fprintf(stderr, "Error number %d: %s\n", errno, strerror(errno));
+        cleanup(MAP_SRC, sfd, dfd, src, NULL, filesize);
         return;
     }
 
     memcpy(dest, src, filesize);
     
-    /* unmap */
-    munmap(src, filesize);
-    munmap(dest, filesize);
-
-    /* close handlers */
-    close(sfd);
-    close(dfd);
-
+    cleanup(MAP_DEST, sfd, dfd, src, NULL, filesize);
 }
