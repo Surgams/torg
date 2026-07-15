@@ -70,8 +70,8 @@ void copy_files_recursively (Configs configs) {
 
                     /* Preparing source and destination files */
                     /** str len for all string, 3 for file_index and 1 for / + 1 */
-                    size_t dest_len = strlen(dest_path) + strlen(configs.name_prefix) + 2 + strlen(point) + 2;
-                    size_t src_len = strlen(dest_path) + strlen(dp->d_name) + 2;
+                    size_t dest_len = strlen(dest_path) + strlen(configs.name_prefix) + 3 + strlen(point) + 4;
+                    size_t src_len = strlen(dest_path) + strlen(dp->d_name) + 4;
                     char  src_tmp[src_len], dest_tmp[dest_len], dict_path[MAX_PATH_LEN] = "";
 
                     memset(src_tmp, 0, src_len);
