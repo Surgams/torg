@@ -194,7 +194,7 @@ uint8_t process_configs(int argc, char **argv, Configs *configs) {
         strncpy(configs->name_prefix, name_prefix, PREFIX_LEN - 1);
         configs->name_prefix[PREFIX_LEN - 1] = 0;
     }
-
+    
     if ((strcmpci(ini_get(config, "core", "generate_dict"), "true") == 0) ||
             (strcmpci(ini_get(config, "core", "generate_dict"), "yes") == 0)) {  
         configs->do_generate_dictionary = true;

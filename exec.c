@@ -91,8 +91,8 @@ void copy_files_recursively (Configs configs) {
                         dict_fptr = fopen(dict_path, "a");
                         fprintf(dict_fptr, "\n%s -> %s%03d%s", dp->d_name, configs.name_prefix, file_index, point);
                         fclose(dict_fptr);
-                        file_index++;
                     }
+                    file_index++;
                 }
             }
 

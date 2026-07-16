@@ -24,13 +24,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define CONFIG_FOLDER "/.config/torg"
                                                                          
 static void display_configs (Configs configs) {
-    printf("\nYou've chosen the below configs:\n\n");
+    printf("\n  >> You've chosen the below configs:\n\n");
     if (configs.isfilter) {
-        printf("\tCopy and rename files of types %s \n", configs.filter_types);
+        printf("  >> Copy and rename files of types: %s \n", configs.filter_types);
     } else  
-        printf ("\tCopy and rename all files\n");
-    printf("\tin directory %s to type %s in directory %s\n", configs.base_dir, configs.name_prefix ,configs.dest_dir);
-    printf("Are you sure you want to proceed [Y/n]:");
+        printf ("  >> Copy and rename all files\n");
+    printf("\n  >> From [%s] to [%s] and renaming the files to %s.xxx\n", configs.base_dir, configs.dest_dir, configs.name_prefix);
+    if (configs.do_generate_dictionary)
+        printf("\n  >> And create mapping dictionary as well\n");
+    printf("\n  >> Are you sure you want to proceed [N/y]:");
 }
 
 

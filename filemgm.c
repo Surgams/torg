@@ -53,16 +53,16 @@ void copy_file (char *srcfile, char *destfile) {
     size_t filesize;
 
     sfd = open(srcfile, O_RDONLY);
-    dfd = open(destfile, O_RDWR | O_CREAT, 0700);
 
     if (sfd == -1) {
         fprintf(stderr, "%d %s: Error number %d: %s\n", ((__LINE__)),__func__, errno, strerror(errno));
         return;
     }
 
+    dfd = open(destfile, O_RDWR | O_CREAT, 0700);
+
     if (dfd == -1) {
         fprintf(stderr, "%d %s: Error number %d: %s\n",  ((__LINE__)),__func__, errno, strerror(errno));
-        close(sfd);
         return;
     }
 
@@ -97,7 +97,6 @@ void copy_file (char *srcfile, char *destfile) {
         return;
     }
 
-    memcpy(dest, src, filesize);
-    
+    memcpy(dest, src, filesize + 1);
     cleanup(MAP_DEST, sfd, dfd, src, NULL, filesize);
 }
