@@ -31,17 +31,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 static FILE *dict_fptr;
 static const char dict_name[] = "dictionary.txt";
 
-static int check_if_dir(char *path) {
-    struct stat st = {0};
-    if (stat(path, &st) == - 1) {
-        return 0; 
-    } else if (st.st_mode & S_IFDIR) {
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
 void copy_files_recursively (Configs configs) {
     char *base_path = configs.base_dir;
     char *dest_path = configs.dest_dir;
@@ -61,7 +50,27 @@ void copy_files_recursively (Configs configs) {
         fprintf(stderr, "%d %s: Error number %d: %s\n", ((__LINE__) -6),__func__, errno, strerror(errno));
         return;
     }
-    int file_index = 1;
+
+    int file_count = 0, file_index = 1, pad;
+    while ((dp = readdir(dir)) != NULL) {
+        if (strcmp(dp->d_name, "~.") != 0 && strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0) {
+            if ((point = strrchr(dp->d_name,'.')) != NULL) {
+                if (strstr(configs.filter_types, (point + 1)) != NULL) {
+                    file_count++;
+                }
+            }
+        }
+    }
+
+    if (file_count < 10) 
+        pad = 1;
+    else if (file_count < 100)
+        pad = 2;
+    else
+        pad = 3;
+
+    rewinddir(dir);
+
     while ((dp = readdir(dir)) != NULL) {
         if (strcmp(dp->d_name, "~.") != 0 && strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0) {
             if ((point = strrchr(dp->d_name,'.')) != NULL) {
@@ -79,8 +88,10 @@ void copy_files_recursively (Configs configs) {
 
                     memset(src_tmp, 0, src_len);
                     memset(dest_tmp, 0, dest_len);
-
-                    snprintf(dest_tmp, dest_len- 1, "%s/%s%03d%s", dest_path, configs.name_prefix, file_index, point);
+                    
+                    char format[15] = "";
+                    snprintf(format, 14, "%s%d%s", "%s/%s%0", pad, "d%s");
+                    snprintf(dest_tmp, dest_len- 1, format, dest_path, configs.name_prefix, file_index, point);
                     snprintf(src_tmp, src_len -1, "%s/%s", base_path, dp->d_name);
 
                     copy_file (src_tmp, dest_tmp);
@@ -103,8 +114,9 @@ void copy_files_recursively (Configs configs) {
             path[MAX_PATH_LEN -1] = 0;
 #pragma GCC diagnostic pop
             sprintf(new_path, "%s/%s", dest_path, dp->d_name);
-
-            if (check_if_dir(path)) {
+          
+            /** Dir are type four **/
+            if (dp->d_type == DT_DIR) {
                 if ((output = create_dir(dest_path)) != 0) {
                     fprintf(stderr, "%d %s: Error number %d: %s\n", ((__LINE__)-6),__func__, errno, strerror(errno));
                     return;
