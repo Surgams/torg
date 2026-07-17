@@ -66,7 +66,7 @@ void copy_files_recursively (Configs configs) {
         if (strcmp(dp->d_name, "~.") != 0 && strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0) {
             if ((point = strrchr(dp->d_name,'.')) != NULL) {
 
-                if (strstr(configs.filter_types, point) != NULL) {
+                if (strstr(configs.filter_types, (point + 1)) != NULL) {
 
                     /* Preparing source and destination files */
                     size_t dest_len = strlen(dest_path) + strlen(configs.name_prefix) + strlen(point);
