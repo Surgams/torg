@@ -100,7 +100,14 @@ void copy_files_recursively (Configs configs) {
                     if (configs.do_generate_dictionary) { 
                         snprintf(dict_path, MAX_PATH_LEN - 1, "%s/%s", dest_path, dict_name);
                         dict_fptr = fopen(dict_path, "a");
-                        fprintf(dict_fptr, "\n%s -> %s%03d%s", dp->d_name, configs.name_prefix, file_index, point);
+                        
+                        /* remove the file type */
+                        size_t org_len = strlen(dp->d_name);
+                        char org[org_len];
+                        memset(org, 0, org_len);
+                        strncpy(org, dp->d_name, org_len - strlen(point));
+                        
+                        fprintf(dict_fptr, "\n%s%03d     %s", configs.name_prefix, file_index, org);
                         fclose(dict_fptr);
                     }
                     file_index++;
