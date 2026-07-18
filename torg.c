@@ -35,11 +35,18 @@ static void display_configs (Configs configs) {
     printf("\n  >> Are you sure you want to proceed [N/y]:");
 }
 
+static int check_proceed(const Configs configs) {
+    if (does_dir_exist(configs.dest_dir)) {
+        printf("\nError: Destination folder exists!!\n");
+        return 1;
+    }
+    return 0;
+}
 
 int main(int argc, char * const argv[]) {
  
     /* Create configuration folder */
-    char config_path[MAX_PATH_LEN] = {'\0'};
+    char config_path[MAX_PATH_LEN] = {0};
     snprintf(config_path, MAX_PATH_LEN -1, "%s%s", getenv("HOME"),CONFIG_FOLDER);
     
     if (create_dir (config_path) == -1) {
@@ -58,6 +65,9 @@ int main(int argc, char * const argv[]) {
     if (proceed != 'y' && proceed != 'Y')
         return 0;
     
+    if (!check_proceed(*configs))
+        return 0;
+
     copy_files_recursively(*configs);
     free(configs);
     printf("\n\nFinished copying the directory tree");

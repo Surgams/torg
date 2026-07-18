@@ -37,6 +37,14 @@ static void cleanup (int step, int s_fd, int d_fd, void *src, void *dest, size_t
     }
 }
 
+int8_t does_dir_exist(const char *path){
+    struct stat st = {0};
+    if (stat(path, &st) == 0 && S_ISDIR(st.st_mode)) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
 int8_t create_dir (const char *path) {
     struct stat st = {0};
 
