@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define VERSION "v0.03"
+#define VERSION "v1.00"
 
 
 uint8_t display_system_details(void);
