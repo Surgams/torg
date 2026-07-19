@@ -66,8 +66,10 @@ void copy_files_recursively (Configs configs) {
         pad = 1;
     else if (file_count < 100)
         pad = 2;
-    else
+    else if (file_count < 1000)
         pad = 3;
+    else
+        pad = 4;
 
     rewinddir(dir);
 
@@ -89,7 +91,7 @@ void copy_files_recursively (Configs configs) {
                     memset(src_tmp, 0, src_len);
                     memset(dest_tmp, 0, dest_len);
                     
-                    char format[15] = "";
+                    char format[17] = "";
                     snprintf(format, 14, "%s%d%s", "%s/%s%0", pad, "d%s");
                     snprintf(dest_tmp, dest_len- 1, format, dest_path, configs.name_prefix, file_index, point);
                     snprintf(src_tmp, src_len -1, "%s/%s", base_path, dp->d_name);
@@ -102,12 +104,14 @@ void copy_files_recursively (Configs configs) {
                         dict_fptr = fopen(dict_path, "a");
                         
                         /* remove the file type */
-                        size_t org_len = strlen(dp->d_name);
-                        char org[org_len];
-                        memset(org, 0, org_len);
-                        strncpy(org, dp->d_name, org_len - strlen(point));
+                        size_t src_base_file_len = strlen(dp->d_name);
+                        char src_base_file[src_base_file_len];
+                        memset(src_base_file, 0, src_base_file_len);
+                        strncpy(src_base_file, dp->d_name, src_base_file_len - strlen(point));
                         
-                        fprintf(dict_fptr, "\n%s%03d     %s", configs.name_prefix, file_index, org);
+                        memset(format, 0, 17);
+                        snprintf(format, 16, "%s%d%s", "\n%s%0", pad, "d     %s");
+                        fprintf(dict_fptr, format, configs.name_prefix, file_index, src_base_file);
                         fclose(dict_fptr);
                     }
                     file_index++;

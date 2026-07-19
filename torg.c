@@ -37,7 +37,7 @@ static void display_configs (Configs configs) {
 
 static int check_dest_dir (const Configs configs) {
     if (does_dir_exist(configs.dest_dir)) {
-        printf("\n>>Error: Destination folder exists!!\n\n");
+        printf("\n\n  >>Error: Destination folder exists!!\n\n");
         return 1;
     }
     return 0;
